@@ -1,0 +1,46 @@
+name: Custom Build and Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    # 核心修正：赋予写权限
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Clone Official Source
+        run: git clone https://github.com/gurucomputing/headscale-ui.git upstream-src
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: upstream-src/package-lock.json
+
+      - name: Patch Path
+        run: |
+          cd upstream-src
+          sed -i 's|base: "/web"|base: ""|g' svelte.config.js
+          grep "base:" svelte.config.js
+
+      - name: Build
+        run: |
+          cd upstream-src
+          npm install
+          npm run build
+          # 关键点：创建 .nojekyll 文件，确保 GitHub Pages 不过滤 _app 等文件夹
+          touch build/.nojekyll
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: upstream-src/build
+          branch: gh-pages
+          clean: true
