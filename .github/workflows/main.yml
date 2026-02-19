@@ -27,7 +27,7 @@ jobs:
       - name: Patch Path
         run: |
           cd upstream-src
-          sed -i 's|base: "/web"|base: ""|g' svelte.config.js
+          sed -i 's|base: "/web"|base: "/"|g' svelte.config.js
           grep "base:" svelte.config.js
 
       - name: Build
