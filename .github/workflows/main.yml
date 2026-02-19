@@ -44,3 +44,4 @@ jobs:
           folder: upstream-src/build
           branch: gh-pages
           clean: true
+          dotfiles: true
